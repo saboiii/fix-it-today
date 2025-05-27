@@ -1,26 +1,42 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-background: #fbfbfe;
+  --color-primary: #ffea00;;
+  --color-secondary: #262626;
+  --color-text: #111111;
+  --color-accent: #ff9d14;
+  --font-primary: var(--font-poppins);
+  --font-secondary: var(--font-dmsans);
+} 
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base{
+  body{
+    @apply bg-background text-text font-secondary
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  h1{
+    @apply text-[42px] md:text-[64px] uppercase font-bold tracking-tight font-primary;
+  }
+
+  h3{
+    @apply  text-xs md:text-lg uppercase font-semibold tracking-tight font-primary;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer theme{
+  .dark {
+    --color-background: #111111;
+    --color-primary: #ffea00;
+    --color-secondary: #d9d9d9;;
+    --color-text: #eae9fc;
+    --color-accent: #eb8900;
+    --font-primary: var(--font-poppins);
+    --font-secondary: var(--font-dmsans);
+  }
+}
+
+.navItem {
+  @apply text-text font-semibold uppercase tracking-wide text-xs ease-in-out duration-300 hover:opacity-50 transition-all;
 }
