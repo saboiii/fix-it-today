@@ -4,6 +4,7 @@ import "./globals.css";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
 import Smooth from "@/components/Smooth";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -33,6 +34,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -71,6 +74,7 @@ export default function RootLayout({
           <Navbar />
           {children}
         </Smooth>
+        
       </body>
     </html>
   );

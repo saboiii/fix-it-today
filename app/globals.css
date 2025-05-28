@@ -2,7 +2,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-background: #fbfbfe;
+  --color-background: #eeeeee;
   --color-primary: #ffea00;;
   --color-secondary: #262626;
   --color-text: #111111;
@@ -20,6 +20,10 @@
     @apply text-[42px] md:text-[64px] uppercase font-bold tracking-tight font-primary;
   }
 
+  h2{
+    @apply text-xl sm:text-[32px] md:text-[40px] uppercase font-bold tracking-tight font-primary;
+  }
+
   h3{
     @apply  text-xs md:text-lg uppercase font-semibold tracking-tight font-primary;
   }
@@ -30,13 +34,44 @@
     --color-background: #111111;
     --color-primary: #ffea00;
     --color-secondary: #d9d9d9;;
-    --color-text: #eae9fc;
+    --color-text: #eeeeee;
     --color-accent: #eb8900;
     --font-primary: var(--font-poppins);
     --font-secondary: var(--font-dmsans);
   }
 }
 
+@media print {
+  html {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
 .navItem {
-  @apply text-text font-semibold uppercase tracking-wide text-xs ease-in-out duration-300 hover:opacity-50 transition-all;
+  @apply font-semibold text-[#eae9fc] uppercase tracking-wide text-xs ease-in-out duration-300 hover:opacity-50 transition-all;
+}
+
+.cardTitle{
+  @apply text-sm md:text-lg font-semibold dark:font-medium uppercase tracking-tight;
+}
+
+.cardTag{
+  @apply text-sm md:text-lg dark:font-extralight uppercase tracking-tight;
+}
+
+.cardDescription{
+  @apply text-xs dark:font-light tracking-tight text-pretty;
+}
+
+.tags{
+  @apply text-xs font-light tracking-tight text-pretty px-2 py-1 rounded-full border-[0.5px]; 
+}
+
+.button-primary{
+  @apply text-xs border-[0.5px] items-center justify-center cursor-pointer rounded-sm px-3 py-2 uppercase tracking-wide opacity-50 hover:opacity-100 ease-in-out transition-opacity duration-300
+}
+
+.tooltip{
+  @apply rounded-full flex flex-row font-semibold uppercase bg-background py-2 pl-1 pr-2 text-xs items-center justify-center shadow-lg
 }
