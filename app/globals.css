@@ -25,7 +25,7 @@
   }
 
   h3{
-    @apply  text-xs md:text-lg uppercase font-semibold tracking-tight font-primary;
+    @apply  text-base md:text-lg uppercase font-semibold tracking-tight font-primary;
   }
 }
 
@@ -52,6 +52,10 @@
   @apply font-semibold text-[#eae9fc] uppercase tracking-wide text-xs ease-in-out duration-300 hover:opacity-50 transition-all;
 }
 
+.navItemReverse {
+  @apply font-semibold text-text uppercase tracking-wide text-xs ease-in-out duration-300 hover:opacity-50 transition-all;
+}
+
 .cardTitle{
   @apply text-sm md:text-lg font-semibold dark:font-medium uppercase tracking-tight;
 }
@@ -60,8 +64,20 @@
   @apply text-sm md:text-lg dark:font-extralight uppercase tracking-tight;
 }
 
+.smallCardTitle{
+  @apply text-sm font-semibold dark:font-medium uppercase tracking-tight;
+}
+
+.smallCardAuthor{
+  @apply text-sm text-text dark:text-accent text-right font-medium dark:font-extralight uppercase tracking-tight hover:underline transition-all duration-300 ease-in-out;
+}
+
 .cardDescription{
   @apply text-xs dark:font-light tracking-tight text-pretty;
+}
+
+.smallCardDescription{
+  @apply text-xs dark:font-light tracking-tight whitespace-nowrap overflow-hidden text-ellipsis;
 }
 
 .tags{
@@ -72,6 +88,69 @@
   @apply text-xs border-[0.5px] items-center justify-center cursor-pointer rounded-sm px-3 py-2 uppercase tracking-wide opacity-50 hover:opacity-100 ease-in-out transition-opacity duration-300
 }
 
+.button-secondary{
+  @apply text-xs bg-accent items-center cursor-pointer rounded-sm px-3 py-2 uppercase tracking-wide hover:bg-accent/90 ease-in-out transition-all duration-300 font-bold
+}
 .tooltip{
   @apply rounded-full flex flex-row font-semibold uppercase bg-background py-2 pl-1 pr-2 text-xs items-center justify-center shadow-lg
+}
+
+.categoryListLabel{
+  @apply flex text-lg font-medium uppercase tracking-tight dark:font-normal w-full items-center;
+}
+
+.subcategoryListLabel{
+  @apply flex text-base font-normal uppercase tracking-tight dark:font-light w-full items-center;
+}
+
+.phoneCategoryDropdownMenu{
+  @apply rounded-lg border-[0.5px] dark:border-text/10 bg-background flex flex-col p-4;
+}
+
+.searchBar{
+  @apply px-5 bg-text/5 text-sm rounded-full outline-none focus:bg-text/10 transition-all duration-300 ease-in-out;
+}
+
+.dropdownPrimary{
+  @apply text-xs font-medium dark:font-normal dark:border-text/50 border-[0.5px] items-center cursor-pointer rounded-full pl-3 pr-2 py-2 uppercase tracking-wide;
+}
+
+.dropdownPrimaryNoBorder{
+  @apply text-xs font-medium whitespace-nowrap  dark:font-normal items-center cursor-pointer uppercase tracking-wide;
+}
+
+.dropdownSecondary{
+  @apply text-xs font-medium dark:font-normal dark:border-text/50 border-[0.5px] items-center cursor-pointer rounded-full px-5 py-2 uppercase tracking-wide;
+}
+
+.dropdownMenu{
+  @apply rounded-lg border-[0.5px] dark:border-text/10 bg-background flex flex-col gap-2
+}
+
+.dropdownMenuItem{
+  @apply hover:underline transition-all duration-300 ease-in-out cursor-pointer font-medium dark:font-normal;
+}
+
+.divider{
+  @apply border-[0.5px] my-4;
+}
+
+.creatorStat{
+  @apply flex flex-row whitespace-nowrap overflow-hidden uppercase text-xs font-normal dark:font-medium tracking-tight items-center gap-1;
+}
+
+.option-primary{
+  @apply uppercase text-xs font-semibold
+}
+
+.oneLineInput{
+  @apply px-3 py-1 bg-text/10 text-xs rounded-lg  w-full outline-none focus:bg-text/15 transition-all duration-300 ease-in-out;
+}
+
+.largeInput{
+  @apply px-3 py-1  w-full bg-text/10 text-xs rounded-lg outline-none focus:bg-text/15 transition-all duration-300 ease-in-out;
+}
+
+.button-tertiary{
+  @apply cursor-pointer uppercase text-xs border-[0.5px] rounded-lg px-3 py-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-in-out hover:text-accent hover:border-accent
 }

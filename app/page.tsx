@@ -6,6 +6,7 @@ import Image from 'next/image';
 export default function Home() {
   const text = "Fix It Today®";
   const letters = Array.from(text);
+  
   const containerVariants = {
     hidden: { opacity: 1 },
     visible: (i = 1) => ({

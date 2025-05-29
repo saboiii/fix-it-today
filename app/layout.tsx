@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Poppins, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-import Navbar from "@/components/Navbar";
 import Smooth from "@/components/Smooth";
 import { GoogleAnalytics } from '@next/third-parties/google'
+import NavWrapper from "@/components/NavWrapper";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -37,10 +38,11 @@ export default function RootLayout({
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <Script id="theme-initializer" strategy="beforeInteractive">
-          {`
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <Script id="theme-initializer" strategy="beforeInteractive">
+            {`
             (function() {
               const root = document.documentElement;
               try {
@@ -65,17 +67,18 @@ export default function RootLayout({
               }
             })();
           `}
-        </Script>
-      </head>
-      <body
-        className={`${poppins.variable} ${dmsans.variable} antialiased`}
-      >
-        <Smooth>
-          <Navbar />
-          {children}
-        </Smooth>
-        
-      </body>
-    </html>
+          </Script>
+        </head>
+        <body
+          className={`${poppins.variable} ${dmsans.variable} antialiased`}
+        >
+          <Smooth>
+            <NavWrapper />
+            {children}
+          </Smooth>
+
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

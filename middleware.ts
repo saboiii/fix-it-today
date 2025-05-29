@@ -1,11 +1,26 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-const isPublicRoute = createRouteMatcher(['/','/about(.*)', '/browse(.*)', '/blog(.*)', '/faq(.*)', '/privacy', '/terms', '/contact', '/pricing', '/sign-in(.*)', '/register(.*)']);
+const isPrivateRoute = createRouteMatcher(['/dashboard(.*)', '/account(.*)'])
+const isOnboardingRoute = createRouteMatcher(['/onboarding'])
 
-export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
+export default clerkMiddleware(async (auth, req: NextRequest) => {
+  const { userId, sessionClaims, redirectToSignIn } = await auth()
+
+  // For users visiting /onboarding, don't try to redirect
+  if (userId && isOnboardingRoute(req)) {
+    return NextResponse.next()
+  }
+  if (!userId && isPrivateRoute(req)) {
     await auth.protect()
   }
+
+  if (userId && !sessionClaims?.metadata?.onboardingComplete) {
+    const onboardingUrl = new URL('/onboarding', req.url)
+    return NextResponse.redirect(onboardingUrl)
+  }
+
+  if (userId && isPrivateRoute(req)) return NextResponse.next()
 })
 
 export const config = {
@@ -15,4 +30,4 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-};
+}

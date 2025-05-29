@@ -10,7 +10,7 @@ export default function Card({ i, cardWidth, tags, MAX_TAGS }: { i: number, card
 
     return (
         <Link
-            href='/browse'
+            href='/prints'
             onMouseMove={e => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 setTooltip({
@@ -27,7 +27,7 @@ export default function Card({ i, cardWidth, tags, MAX_TAGS }: { i: number, card
         >
             <LinkToolTip tooltip={tooltip} title={undefined} />
             <Image
-                src='/bg5.jpg'
+                src='/product-placeholder.jpg'
                 alt={`Slide ${i + 1}`}
                 width={500}
                 height={500}

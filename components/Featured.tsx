@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GoChevronLeft, GoChevronRight } from "react-icons/go";
-import { motion, MotionConfig, useMotionValue, animate, AnimatePresence } from 'framer-motion';
-import Image from "next/image";
-import { PiDotsThreeThin } from "react-icons/pi";
+import { motion, useMotionValue, animate } from 'framer-motion';
 import Link from "next/link";
 import Card from "./Card";
 
@@ -12,7 +10,6 @@ function Featured() {
     const [mounted, setMounted] = useState(false);
     const [current, setCurrent] = useState(0);
     const [cardWidth, setCardWidth] = useState(30);
-    const [tooltip, setTooltip] = useState<{ x: number; y: number } | null>(null);
 
     const TOTAL_CARDS = 6;
     const tags = [".obj", ".glb", ".gltf", ".stl", ".blend"];
@@ -48,7 +45,7 @@ function Featured() {
     return (
         <div className="flex flex-col w-full px-6 md:px-12 py-24 justify-center md:items-start items-center h-screen md:h-full">
             <h3 className="md:ml-12">We just launched.</h3>
-            <h2 className="md:ml-12">Featured 3d models</h2>
+            <h2 className="md:ml-12">Featured 3d Prints</h2>
             <div className="flex mt-4 md:mt-8 flex-row items-center justify-between w-full">
 
                 <button onClick={onPrevClick} disabled={current == 0} className="cursor-pointer z-5 mr-4 disabled:opacity-30 disabled:cursor-not-allowed">
@@ -71,11 +68,18 @@ function Featured() {
                                 width: cardWidth + "vw",
                             }}
                         >
-                            <Link href='/browse' className="flex button-primary">
+                            <Link href='/prints' className="flex button-primary">
                                 View More
                                 <GoChevronRight size={12} className="ml-2 flex" />
                             </Link>
                         </div>
+
+                        <div
+                            className="flex flex-col h-[57vh] border-[0.5px] border-text/15 shrink-0 justify-center p-3 items-center"
+                            style={{
+                                width: cardWidth + "vw",
+                            }}
+                        />
                     </motion.div>
                 </div>
                 <button onClick={onNextClick} disabled={current == TOTAL_CARDS - 1} className="cursor-pointer z-5 ml-4 disabled:opacity-30 disabled:cursor-not-allowed">
