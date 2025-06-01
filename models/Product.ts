@@ -1,30 +1,73 @@
-import { Schema, model, models } from "mongoose";
+import mongoose from "mongoose";
 
-const RatingSchema = new Schema({
-  title: { type: String, maxlength: 200 }, // 20 words max (approx 200 chars)
-  description: { type: String, maxlength: 1000 }, // 200 words max (approx 1000 chars)
-  images: [{ type: String }], // S3 links
-  rating: { type: Number, min: 0, max: 5 },
-});
+// Define the DeliveryTypeSchema first
+const DeliveryTypeSchema = new mongoose.Schema(
+  {
+    type: { type: String, required: true },
+    price: {
+      type: mongoose.Schema.Types.Mixed, // CHANGED: Allow mixed types (Number or Object)
+      required: true,
+    },
+  },
+  { _id: false } // _id: false if you don't need individual IDs for delivery types
+);
 
-const ProductSchema = new Schema({
-  name: { type: String, required: true },
-  images: [{ type: String, required: true }], // S3 links
-  description: { type: String, required: true, maxlength: 1000 }, // 100 words max (approx 1000 chars)
-  dateReleased: { type: Date, required: true },
-  downloads: { type: Number, min: 0, default: 0 }, // Only for 3D Models
-  prints: { type: Number, min: 0, default: 0 }, // Only for 3D Models
-  numberSold: { type: Number, min: 0, default: 0 },
-  ratings: [RatingSchema],
-  variants: [{ type: String }],
-  stock: { type: Number, min: 0, default: 0 },
-  category: { type: String, required: true },
-  subcategory: { type: String },
-  downloadableAssets: [{ type: String }], // S3 links
-  creatorUserId: { type: String, required: true },
-  creatorFullName: { type: String, required: true },
-  priceCredits: { type: Number, min: 0, required: true },
-  price: { type: Number, min: 0, required: true },
-});
+const ProductSchema = new mongoose.Schema(
+  {
+    creatorUserId: { type: String, required: true },
+    creatorFullName: { type: String, required: true },
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    images: { type: [String], default: [] },
+    downloadableAssets: { type: [String], default: [] },
+    dateReleased: { type: Date, default: Date.now },
+    price: { type: Number, required: true }, // Main product price
+    priceCredits: { type: Number, required: true },
+    stock: { type: Number, default: 0 },
+    productType: { type: String, enum: ["print", "other"], required: true },
+    category: { type: String, required: true },
+    subcategory: { type: String },
+    variants: { type: [String], default: [] },
+    delivery: {
+      deliveryTypes: [DeliveryTypeSchema], // Use the defined DeliveryTypeSchema
+      selfCollectLocation: { type: [String], default: [] },
+    },
+    dimensions: {
+      length: Number,
+      width: Number,
+      height: Number,
+      weight: Number,
+    },
+    // singpostRoyalty: Number, // This should have been removed if it's now nested
+    downloads: { type: Number, default: 0 },
+    prints: { type: Number, default: 0 },
+    numberSold: { type: Number, default: 0 },
+    ratings: [
+      {
+        // Assuming a basic Rating structure, adjust if more complex
+        userId: String,
+        rating: Number,
+        comment: String,
+        date: Date,
+      },
+    ],
+    discount: [
+      {
+        // Assuming a basic Discount structure
+        percentage: Number,
+        fixedAmount: Number,
+        startDate: Date,
+        endDate: Date,
+      },
+    ],
+    likes: { type: [String], default: [] }, // Array of user IDs
+    views: { type: Number, default: 0 },
+    hidden: { type: Boolean, default: false },
+    flaggedForModeration: { type: Boolean, default: false },
+    slug: { type: String, required: true, unique: true, index: true },
+    // Timestamps can be added automatically by Mongoose
+  },
+  { timestamps: true }
+);
 
-export default models.Product || model("Product", ProductSchema);
+export default mongoose.models.Product || mongoose.model("Product", ProductSchema);

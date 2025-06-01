@@ -19,7 +19,7 @@ export default function SortDropdown({
 }: SortDropdownProps) {
     return (
         <div
-            className="relative flex items-center dropdownPrimary justify-center cursor-pointer select-none z-30"
+            className="relative flex items-center dropdownPrimary justify-center cursor-pointer select-none"
             onClick={() => setOpenSort(!openSort)}
         >
             <span className="whitespace-nowrap">Sort by</span>

@@ -19,9 +19,8 @@ function LinkToolTip({
                 className="pointer-events-none absolute z-50"
                 style={{ left: 10, top: 0 }}
             >
-                <div className="tooltip">
-                    
-                    <MdOutlineArrowOutward size={16} className="mx-1 flex" />
+                <div className="tooltip mx-1 gap-2 truncate max-w-64">
+                    <MdOutlineArrowOutward size={16} className="flex" />
                     {title}
                 </div>
             </motion.div>

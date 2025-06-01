@@ -39,7 +39,7 @@ export default function CategoryDropdown({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-12 right-0 w-full phoneCategoryDropdownMenu bg-white dark:bg-neutral-900 rounded-xl shadow-lg z-10"
+                        className="absolute top-12 right-0 w-full phoneCategoryDropdownMenu bg-white dark:bg-neutral-900 rounded-xl shadow-lg z-30"
                         onClick={e => e.stopPropagation()}
                     >
                         {categories.map((cat, idx) => (

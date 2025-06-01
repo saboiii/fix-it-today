@@ -65,11 +65,15 @@
 }
 
 .smallCardTitle{
-  @apply text-sm font-semibold dark:font-medium uppercase tracking-tight;
+  @apply text-base font-semibold dark:font-medium uppercase tracking-tight;
 }
 
 .smallCardAuthor{
-  @apply text-sm text-text dark:text-accent text-right font-medium dark:font-extralight uppercase tracking-tight hover:underline transition-all duration-300 ease-in-out;
+  @apply text-xs text-text text-right font-medium dark:font-extralight uppercase tracking-tight underline hover:cursor-pointer transition-all duration-300 ease-in-out dark:text-accent dark:no-underline;
+}
+
+.controlsTabs{
+  @apply absolute h-full z-20 flex items-center justify-center top-0 opacity-80 hover:opacity-100 hover:cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out;
 }
 
 .cardDescription{
@@ -85,12 +89,21 @@
 }
 
 .button-primary{
-  @apply text-xs border-[0.5px] items-center justify-center cursor-pointer rounded-sm px-3 py-2 uppercase tracking-wide opacity-50 hover:opacity-100 ease-in-out transition-opacity duration-300
+  @apply text-xs border-[0.5px] items-center justify-center cursor-pointer rounded-md px-3 py-2 uppercase tracking-wide opacity-80 hover:opacity-100 ease-in-out transition-opacity duration-300
 }
 
 .button-secondary{
-  @apply text-xs bg-accent items-center cursor-pointer rounded-sm px-3 py-2 uppercase tracking-wide hover:bg-accent/90 ease-in-out transition-all duration-300 font-bold
+  @apply text-xs bg-text/10 items-center cursor-pointer rounded-md px-3 py-2 uppercase tracking-wide hover:bg-text/30 ease-in-out transition-all duration-300 font-medium;
 }
+
+.button-tertiary{
+  @apply cursor-pointer uppercase text-xs border-[0.5px] rounded-md px-3 py-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-in-out hover:text-accent hover:border-accent
+}
+
+.button-danger{
+  @apply text-xs items-center justify-center cursor-pointer rounded-sm text-black font-bold px-3 py-2 uppercase tracking-tight hover:bg-accent/90 ease-in-out transition-all duration-300 bg-accent
+}
+
 .tooltip{
   @apply rounded-full flex flex-row font-semibold uppercase bg-background py-2 pl-1 pr-2 text-xs items-center justify-center shadow-lg
 }
@@ -151,6 +164,14 @@
   @apply px-3 py-1  w-full bg-text/10 text-xs rounded-lg outline-none focus:bg-text/15 transition-all duration-300 ease-in-out;
 }
 
-.button-tertiary{
-  @apply cursor-pointer uppercase text-xs border-[0.5px] rounded-lg px-3 py-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-in-out hover:text-accent hover:border-accent
+.product-window{
+  @apply rounded-xl bg-background border dark:border-neutral-800 border-text/20 transition-all duration-300 ease-in-out;
+}
+
+.sidebar{
+  @apply h-full border-r dark:border-neutral-800 border-text/10 gap-1 px-3 w-64 transition-transform duration-300 ease-in-out;
+}
+
+.sidebarButton{
+  @apply rounded-md text-sm font-medium dark:font-light w-full transition-all ease-in-out duration-300 cursor-pointer disabled:bg-transparent disabled:cursor-default;
 }

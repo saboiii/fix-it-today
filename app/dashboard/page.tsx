@@ -1,246 +1,134 @@
 'use client';
 
-import React, { useState } from "react";
-import { useEffect, useMemo, useRef, useCallback } from "react";
-import { CiSearch } from "react-icons/ci";
-import SortDropdown from "@/components/SortDropdown";
-import { GoChevronLeft, GoChevronRight } from "react-icons/go";
-import SmallCard from "@/components/SmallCard";
-import { animate } from "framer-motion";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
-
 import { useUser } from "@clerk/nextjs";
 import CreatorCard from "@/components/CreatorCard";
 import { FaPlus } from "react-icons/fa";
-import CreateProductWindow from "@/components/CreateProductWindow";
-
-const products = Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    name: `Product ${i + 1}`,
-    tags: [".obj", ".glb", ".gltf", ".stl", ".blend"],
-}));
+import ProductDisplayGrid from "@/components/ProductDisplayGrid";
+import ProductWindow from "@/components/ProductWindow";
+import { BsPlus } from "react-icons/bs";
 
 const MAX_TAGS = 2;
 
-
 export default function Dashboard() {
-    const [products, setProducts] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [editProduct, setEditProduct] = useState<any | null>(null);
-
-    useEffect(() => {
-        setLoading(true);
-        fetch("/api/product")
-            .then(res => res.json())
-            .then(data => {
-                setProducts(data.products || []);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    }, []);
-
+    const { user, isLoaded } = useUser();
     const [isMounted, setIsMounted] = useState(false);
+    const pageTopRef = useRef<HTMLDivElement>(null);
+
+    const [allProducts, setAllProducts] = useState<Product[]>([]);
+    const [editProductData, setEditProductData] = useState<Product | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [showCreateProductModal, setShowCreateProductModal] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
-    const { user, isLoaded } = useUser();
+    const fetchUserProducts = () => {
+        if (isLoaded && user) { // Ensure user is loaded before fetching
+            setLoading(true);
+            // Assuming /api/product returns all products, filter client-side for dashboard
+            // OR modify API to fetch products by user: /api/product?userId=${user.id}
+            fetch("/api/product")
+                .then(res => res.json())
+                .then(data => {
+                    const userSpecificProducts = (data.products || []).filter((p: Product) => p.creatorUserId === user.id);
+                    setAllProducts(userSpecificProducts);
+                    setLoading(false);
+                })
+                .catch(() => {
+                    setAllProducts([]);
+                    setLoading(false);
+                });
+        } else if (isLoaded && !user) { // User not logged in
+            setAllProducts([]);
+            setLoading(false);
+        }
+    };
 
-    const [openSort, setOpenSort] = useState<boolean>(false);
-    const [filter, setFilter] = useState<number>(0);
+    useEffect(() => {
+        fetchUserProducts();
+    }, [isLoaded, user]);
 
-    const topRef = useRef<HTMLDivElement>(null);
-
-    const [page, setPage] = useState(0);
-    const pageSize = 9;
-
-    const filterOptions = useMemo(() => [
+    const dashboardFilterOptions = useMemo(() => [
+        "Most Recent", // Default sort for dashboard
         "Sales",
         "Price: Low to High",
-        "Price: High to Low"
+        "Price: High to Low",
     ], []);
 
-    const [search, setSearch] = useState("");
+    const handleProductModalClose = () => {
+        setShowCreateProductModal(false);
+        setEditProductData(null);
+    };
 
-    const filteredProducts = useMemo(() => {
-        const s = search.toLowerCase();
-        interface Product {
-            _id?: string;
-            creatorFullName?: string;
-            name: string;
-            downloadableAssets?: string[];
-            tags?: string[];
-            [key: string]: any;
-        }
-        const getTagsFromAssets = (assets?: string[]) => {
-            if (!assets) return [];
-            return assets
-                .map(url => {
-                    const match = url.match(/\.\w+$/);
-                    return match ? match[0] : null;
-                })
-                .filter(Boolean);
-        };
+    const handleProductSaved = () => {
+        handleProductModalClose();
+        fetchUserProducts(); // Re-fetch products after save
+    };
 
-        return products.filter((product: Product) => {
-            const tags = product.tags && product.tags.length > 0
-                ? product.tags
-                : getTagsFromAssets(product.downloadableAssets);
+    const openEditModal = (productToEdit: Product) => {
+        setEditProductData(productToEdit);
+        setShowCreateProductModal(true);
+    };
 
-            return (
-                !s ||
-                product.name.toLowerCase().includes(s) ||
-                tags.some((tag) => typeof tag === "string" && tag.toLowerCase().includes(s))
-            );
-        });
-    }, [search, products]);
+    const openCreateModal = () => {
+        setEditProductData(null);
+        setShowCreateProductModal(true);
+    };
 
+    if (!isMounted || !isLoaded) {
+        return <div className="flex w-full h-screen items-center justify-center text-xl">Loading Dashboard...</div>;
+    }
+    if (isLoaded && !user) {
+        return <div className="flex w-full h-screen items-center justify-center text-xl">Please sign in to view your dashboard.</div>;
+    }
 
-    const totalPages = useMemo(() => Math.ceil(filteredProducts.length / pageSize), [filteredProducts.length, pageSize]);
-
-    const paginatedProducts = useMemo(
-        () => filteredProducts.slice(page * pageSize, (page + 1) * pageSize),
-        [filteredProducts, page, pageSize]
-    );
-
-
-
-    useEffect(() => {
-        if (topRef.current) {
-            animate(window.scrollY, topRef.current.offsetTop, {
-                duration: 0.6,
-                onUpdate: (v) => window.scrollTo(0, v),
-                ease: [0.32, 0.72, 0.0, 1.0],
-            });
-        }
-    }, [page]);
-
-    useEffect(() => {
-        setPage(0);
-    }, [search]);
-
-    const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value);
-    }, []);
-    const [showCreateProduct, setShowCreateProduct] = useState(false);
 
     return (
-        <div ref={topRef} className="flex flex-col w-screen px-6 md:px-12">
+        <div ref={pageTopRef} className="flex flex-col w-screen px-6 md:px-12">
             <div className="flex relative w-full mt-24 aspect-[1920/500]">
                 <Image
                     src="/creator-placeholder.jpg"
                     alt="Creator Banner"
                     fill
-                    className="object-cover w-full h-full object-center z-0 transition-[object-position] duration-500 ease-in-out"
+                    className="object-cover w-full h-full object-center z-0"
                     priority
                     sizes="100vw"
                 />
             </div>
-            <div className="grid grid-cols-3 mt-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 mt-4 gap-4">
+                <div className="flex flex-col md:col-span-1 p-0 md:p-4 gap-4">
 
-                <div className="flex flex-col col-span-3 md:col-span-1 p-4 gap-4">
+                    <CreatorCard creatorId={user?.id.substring(5)} />
                     <button
-                        className="button-secondary flex items-center justify-between"
-                        onClick={() => setShowCreateProduct(true)}
+                        className="button-secondary flex items-center justify-center md:justify-between w-full"
+                        onClick={openCreateModal}
                     >
-                        Create Product <FaPlus className="inline ml-1" size={10} />
+                        Create Product <BsPlus className="inline ml-3" size={16} />
                     </button>
-                    <CreatorCard />
-                    {showCreateProduct && (
-                        <CreateProductWindow onClose={() => setShowCreateProduct(false)} />
-                    )}
-                    {editProduct && (
-                        <CreateProductWindow
-                            onClose={() => setEditProduct(null)}
-                            product={editProduct}
+                    {showCreateProductModal && (
+                        <ProductWindow
+                            onClose={handleProductModalClose}
+                            product={editProductData ?? undefined}
+                            onProductCreated={handleProductSaved}
+                            onProductUpdated={handleProductSaved}
                         />
                     )}
                 </div>
 
-                <div className="flex flex-col gap-4 col-span-3 md:col-span-2 bg-background p-4 rounded-lg">
-                    <div className="flex flex-col items-center gap-4 py-2 w-full">
-                        <div className="flex flex-row items-center justify-between gap-2 w-full">
-                            <div className="relative flex w-full">
-                                <input
-                                    className="flex w-full py-2 searchBar pr-10 truncate"
-                                    type="text"
-                                    placeholder="Search for prints, categories, or tags..."
-                                    value={search}
-                                    onChange={handleSearch}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    aria-label="Search prints"
-                                />
-                                <span className="absolute hidden md:block right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 pointer-events-none">
-                                    <CiSearch />
-                                </span>
-                            </div>
-                            <SortDropdown
-                                openSort={openSort}
-                                setOpenSort={setOpenSort}
-                                filter={filter}
-                                setFilter={setFilter}
-                                filterOptions={filterOptions}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
-                        {loading ? (
-                            <div className="col-span-3 text-center text-xs uppercase py-12">
-                                Loading products...
-                            </div>
-                        ) : paginatedProducts.length > 0 ? (
-                            paginatedProducts.map((product, i) => (
-                                <SmallCard
-                                    key={product._id}
-                                    i={product._id}
-                                    name={product.name}
-                                    description={product.description}
-                                    tags={product.tags && product.tags.length > 0
-                                        ? product.tags
-                                        : (product.downloadableAssets || []).map((url: string) => {
-                                            const match = url.match(/\.\w+$/);
-                                            return match ? match[0] : null;
-                                        }).filter(Boolean)
-                                    }
-                                    creatorFullName={product.creatorFullName}
-                                    imageUrl={product.images && product.images.length > 0 ? product.images[0] : undefined}
-                                    MAX_TAGS={MAX_TAGS}
-                                    editable={true}
-                                    onEdit={setEditProduct}
-                                    product={product}
-                                />
-                            ))
-                        ) : (
-                            <div className="col-span-3 text-center text-xs uppercase py-12">
-                                No results found.
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex w-full justify-center items-center gap-4 mt-8 mb-12 min-h-[40px]">
-                        <button
-                            onClick={() => setPage(page - 1)}
-                            disabled={page === 0}
-                            className="disabled:opacity-40"
-                            aria-label="Previous page"
-                        >
-                            <GoChevronLeft size={24} />
-                        </button>
-                        <span className="text-sm">
-                            Page {page + 1} of {totalPages}
-                        </span>
-                        <button
-                            onClick={() => setPage(page + 1)}
-                            disabled={page >= totalPages - 1}
-                            className="disabled:opacity-40"
-                            aria-label="Next page"
-                        >
-                            <GoChevronRight size={24} />
-                        </button>
-                    </div>
+                <div className="flex flex-col md:col-span-2 bg-background md:p-4 rounded-lg">
+                    <ProductDisplayGrid
+                        initialProducts={allProducts} // Already filtered for the user
+                        loading={loading}
+                        filterOptions={dashboardFilterOptions}
+                        MAX_TAGS={MAX_TAGS}
+                        isEditable={true}
+                        onProductEdit={openEditModal}
+                        topScrollRef={pageTopRef} // Optional: for scrolling the whole page on pagination
+                        gridItemColSpan="md:col-span-3" // For loading/empty states to span 3 cols on md+
+                    />
                 </div>
             </div>
         </div>

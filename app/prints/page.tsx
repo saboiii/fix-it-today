@@ -1,129 +1,44 @@
 'use client'
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { CiSearch } from "react-icons/ci";
+import { useEffect, useState, useRef, useMemo } from "react";
 import CategoryMenu from "@/components/CategoryMenu";
 import CategoryDropdown from "@/components/CategoryDropdown";
-import SortDropdown from "@/components/SortDropdown";
-import { GoChevronLeft, GoChevronRight } from "react-icons/go";
-import SmallCard from "@/components/SmallCard";
-import { animate } from "framer-motion";
 import Image from "next/image";
-
-const categories = [
-    { label: "Trending Prints", subcategories: ["Popular", "New Arrivals", "Editor's Picks"] },
-    { label: "Games", subcategories: ["Board Games", "Miniatures", "Accessories"] },
-    { label: "Educational", subcategories: ["STEM", "Models", "Teaching Aids"] },
-    { label: "Display", subcategories: ["Figurines", "Art", "Props"] },
-    { label: "For Him", subcategories: ["Gadgets", "Tools", "Toys"] },
-    { label: "Adda", subcategories: ["Community", "Events", "Meetups"] },
-];
+import ProductDisplayGrid from "@/components/ProductDisplayGrid";
+import { PRINT_CATEGORIES, COMMON_FILTER_OPTIONS } from "@/lib/constants";
 
 const MAX_TAGS = 2;
 
 export default function Prints() {
-    const [products, setProducts] = useState<any[]>([]);
+    const [allFetchedProducts, setAllFetchedProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [openIndex, setOpenIndex] = useState<number | null>(null);
-    const [openSort, setOpenSort] = useState<boolean>(false);
-    const [openCategory, setOpenCategory] = useState<boolean>(false);
+    const [openCategoryDropdown, setOpenCategoryDropdown] = useState<boolean>(false);
+    const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(PRINT_CATEGORIES[0]?.subcategories[0] || null); // Default to first subcategory
 
-    const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>("Popular");
-    const [filter, setFilter] = useState<number>(0);
-
-    const topRef = useRef<HTMLDivElement>(null);
-
-    const [page, setPage] = useState(0);
-    const pageSize = 9;
-
-    const filterOptions = useMemo(() => [
-        "Sales",
-        "Price: Low to High",
-        "Price: High to Low"
-    ], []);
-
-    const [search, setSearch] = useState("");
+    const pageTopRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setLoading(true);
         fetch("/api/product")
             .then(res => res.json())
             .then(data => {
-                setProducts(data.products || []);
+                setAllFetchedProducts(data.products || []);
                 setLoading(false);
             })
-            .catch(() => setLoading(false));
-    }, [selectedSubCategory]);
-
-    const filteredProducts = useMemo(() => {
-        const s = search.toLowerCase();
-        interface Product {
-            _id?: string;
-            creatorFullName?: string;
-            name: string;
-            subcategory?: string;
-            downloadableAssets?: string[];
-            tags?: string[];
-            [key: string]: any;
-        }
-        const getTagsFromAssets = (assets?: string[]) => {
-            if (!assets) return [];
-            return assets
-                .map(url => {
-                    const match = url.match(/\.\w+$/);
-                    return match ? match[0] : null;
-                })
-                .filter(Boolean);
-        };
-
-        return products.filter((product: Product) => {
-            // Only show products matching the selected subcategory (if any)
-            const matchesSubcategory =
-                !selectedSubCategory ||
-                !product.subcategory ||
-                product.subcategory === selectedSubCategory;
-
-            const tags = product.tags && product.tags.length > 0
-                ? product.tags
-                : getTagsFromAssets(product.downloadableAssets);
-
-            return (
-                matchesSubcategory &&
-                (
-                    !s ||
-                    product.name.toLowerCase().includes(s) ||
-                    tags.some((tag) => typeof tag === "string" && tag.toLowerCase().includes(s))
-                )
-            );
-        });
-    }, [search, products, selectedSubCategory]);
-    const totalPages = useMemo(() => Math.ceil(filteredProducts.length / pageSize), [filteredProducts.length, pageSize]);
-
-    const paginatedProducts = useMemo(
-        () => filteredProducts.slice(page * pageSize, (page + 1) * pageSize),
-        [filteredProducts, page, pageSize]
-    );
-
-    useEffect(() => {
-        if (topRef.current) {
-            animate(window.scrollY, topRef.current.offsetTop, {
-                duration: 0.6,
-                onUpdate: (v) => window.scrollTo(0, v),
-                ease: [0.32, 0.72, 0.0, 1.0],
+            .catch(() => {
+                setAllFetchedProducts([]);
+                setLoading(false);
             });
-        }
-    }, [page]);
-
-    useEffect(() => {
-        setPage(0);
-    }, [search]);
-
-    const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value);
     }, []);
 
+    const productsForDisplay = useMemo(() => {
+        if (!selectedSubCategory) return allFetchedProducts; // Show all if no subcategory selected, or handle differently
+        return allFetchedProducts.filter(p => p.subcategory === selectedSubCategory);
+    }, [allFetchedProducts, selectedSubCategory]);
+
     return (
-        <div ref={topRef} className="flex flex-col w-screen px-6 md:px-12">
+        <div ref={pageTopRef} className="flex flex-col w-screen px-6 md:px-12">
             <div className="flex relative w-full mt-24 aspect-[1920/500]">
                 <Image
                     src="/ad-placeholder.jpg"
@@ -134,105 +49,38 @@ export default function Prints() {
                     sizes="100vw"
                 />
             </div>
-            <div className="grid grid-cols-3 mt-4 gap-4">
-                <CategoryMenu
-                    categories={categories}
-                    openIndex={openIndex}
-                    setOpenIndex={setOpenIndex}
-                    selectedSubCategory={selectedSubCategory}
-                    setSelectedSubCategory={setSelectedSubCategory}
-                />
-                <div className="flex flex-col gap-4 col-span-3 md:col-span-2">
-                    <div className="flex flex-col items-center gap-4 py-2 w-full">
-                        <div className="flex flex-row items-center justify-between gap-2 w-full">
-                            <div className="relative flex w-full">
-                                <input
-                                    className="flex w-full py-2 searchBar pr-10 truncate"
-                                    type="text"
-                                    placeholder="Search for prints, categories, or tags..."
-                                    value={search}
-                                    onChange={handleSearch}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    aria-label="Search prints"
-                                />
-                                <span className="absolute hidden md:block right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 pointer-events-none">
-                                    <CiSearch />
-                                </span>
-                            </div>
-                            <SortDropdown
-                                openSort={openSort}
-                                setOpenSort={setOpenSort}
-                                filter={filter}
-                                setFilter={setFilter}
-                                filterOptions={filterOptions}
-                            />
-                        </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 mt-4 gap-4">
+                <div className="md:col-span-1">
+                    <CategoryMenu
+                        categories={PRINT_CATEGORIES}
+                        openIndex={openIndex}
+                        setOpenIndex={setOpenIndex}
+                        selectedSubCategory={selectedSubCategory}
+                        setSelectedSubCategory={setSelectedSubCategory}
+                    />
+                </div>
+
+                <div className="flex flex-col gap-4 md:col-span-2">
+                    <div className="md:hidden">
                         <CategoryDropdown
-                            categories={categories}
-                            openCategory={openCategory}
-                            setOpenCategory={setOpenCategory}
+                            categories={PRINT_CATEGORIES}
+                            openCategory={openCategoryDropdown}
+                            setOpenCategory={setOpenCategoryDropdown}
                             openIndex={openIndex}
                             setOpenIndex={setOpenIndex}
                             selectedSubCategory={selectedSubCategory}
                             setSelectedSubCategory={setSelectedSubCategory}
                         />
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
-                        {loading ? (
-                            <div className="col-span-3 text-center text-xs uppercase py-12">
-                                Loading products...
-                            </div>
-                        ) : paginatedProducts.length > 0 ? (
-                            paginatedProducts.map((product, i) => (
-                                <SmallCard
-                                    key={product._id}
-                                    i={product._id}
-                                    name={product.name}
-                                    description={product.description}
-                                    tags={product.tags && product.tags.length > 0
-                                        ? product.tags
-                                        : (product.downloadableAssets || []).map((url: string) => {
-                                            const match = url.match(/\.\w+$/);
-                                            return match ? match[0] : null;
-                                        }).filter(Boolean)
-                                    }
-                                    creatorFullName={product.creatorFullName}
-                                    imageUrl={product.images && product.images.length > 0 ? product.images[0] : undefined}
-                                    MAX_TAGS={MAX_TAGS}
-                                />
-                            ))
-                        ) : (
-                            <div className="col-span-3 text-center text-xs uppercase py-12">
-                                No results found.
-                            </div>
-                        )}
-
-
-                    </div>
-
-                    <div className="flex w-full justify-center items-center gap-4 mt-8 mb-12 min-h-[40px]">
-                        <button
-                            onClick={() => setPage(page - 1)}
-                            disabled={page === 0}
-                            className="disabled:opacity-40"
-                            aria-label="Previous page"
-                        >
-                            <GoChevronLeft size={24} />
-                        </button>
-                        <span className="text-sm">
-                            Page {page + 1} of {totalPages}
-                        </span>
-                        <button
-                            onClick={() => setPage(page + 1)}
-                            disabled={page >= totalPages - 1}
-                            className="disabled:opacity-40"
-                            aria-label="Next page"
-                        >
-                            <GoChevronRight size={24} />
-                        </button>
-                    </div>
+                    <ProductDisplayGrid
+                        initialProducts={productsForDisplay}
+                        loading={loading}
+                        filterOptions={COMMON_FILTER_OPTIONS}
+                        MAX_TAGS={MAX_TAGS}
+                        isEditable={false} // Products on shop page are generally not editable by the viewer
+                        topScrollRef={pageTopRef}
+                        gridItemColSpan="md:col-span-3"
+                    />
                 </div>
             </div>
         </div>

@@ -1,9 +1,9 @@
-import React from 'react'
+import { SignIn } from '@clerk/nextjs'
 
-function SignIn() {
+function SignInPage() {
   return (
-    <div>Sign In</div>
+    <div className='flex w-screen h-screen items-center justify-center'><SignIn /></div>
   )
 }
 
-export default SignIn
+export default SignInPage
